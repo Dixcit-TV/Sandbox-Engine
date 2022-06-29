@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Build/x64
+/Build/Win32
+/Source/.vs/Sandbox_Engine/v16
+/Source/Intermediate

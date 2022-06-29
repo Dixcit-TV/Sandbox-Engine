@@ -1,0 +1,3 @@
+﻿  Sandbox.cpp
+C:\Users\thoma\Documents\Github Repos\Sandbox-Engine\Source\Sandbox_Engine\Sandbox\Sandbox.cpp(11,5): error C2220: the following warning is treated as an error
+C:\Users\thoma\Documents\Github Repos\Sandbox-Engine\Source\Sandbox_Engine\Sandbox\Sandbox.cpp(11,5): warning C4100: 'time': unreferenced formal parameter

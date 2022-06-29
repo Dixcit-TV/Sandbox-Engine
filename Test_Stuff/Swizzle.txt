@@ -1,0 +1,162 @@
+//
+//#define X 0
+//#define Y 1
+//#define Z 2
+//#define W 3
+//
+//#define COMP_0 x
+//#define COMP_1 y
+//#define COMP_2 z
+//#define COMP_3 w
+//
+//
+//#define FIFTH_ARGUMENT(a1, a2, a3, a4, a5, ...) a5
+//#define COUNT_ARGUMENTS(...) FIFTH_ARGUMENT(dummy, ##__VA_ARGS__, 3, 2, 1, 0)
+//
+//#define CONCAT_NANE_2(x, y) x##y
+//#define CONCAT_NANE_3(x, y, z) x##y##z
+//#define CONCAT_NANE_4(x, y, z, w) x##y##z##w
+//#define CONCAT_NANE_SELECT(count, ...) CONCAT_NANE_##count(##__VA_ARGS__)
+//#define CONCAT_NANE(count, ...) CONCAT_NANE_SELECT(count, ##__VA_ARGS__)
+//#define SWIZZLE_NAME(...) CONCAT_NANE(COUNT_ARGUMENTS(##__VA_ARGS__), ##__VA_ARGS__)
+//
+//#define VAR_ARGS_CONCAT_N(str, one, ...) str##one, VAR_ARGS_CONCAT_N(str, ##__VA_ARGS__) 
+//#define VAR_ARGS_CONCAT(str,...) VAR_ARGS_CONCAT_N(str, ##__VA_ARGS__)
+//#define SWIZZLE_DECL(VecType, Typename, ...)	\
+//	Swizzle<VecType, Typename, ##__VA_ARGS__> SWIZZLE_NAME(VAR_ARGS_CONCAT(COMP_, ##__VA_ARGS__));
+//
+//
+//
+//
+//#define SWIZZLE_4_1(Typename, c1)	\
+//	Swizzle<Vec4, Typename, c1, c1, c1, c1> SWIZZLE_NAME_4(C_##c1_Name, C_##c1_Name, C_##c1_Name, C_##c1_Name);
+//
+//#define SWIZZLE_4_4(Typename, c1, c2, c3, c4)	\
+//	Swizzle<Vec4, Typename, c1, c2, c3, c4> SWIZZLE_NAME_4(C_##c1_Name, C_##c2_Name, C_##c3_Name, C_##c4_Name);		\
+//	Swizzle<Vec4, Typename, c1, c2, c4, c3> SWIZZLE_NAME_4(C_##c1_Name, C_##c2_Name, C_##c4_Name, C_##c3_Name);		\
+//	Swizzle<Vec4, Typename, c1, c3, c2, c4> SWIZZLE_NAME_4(C_##c1_Name, C_##c3_Name, C_##c2_Name, C_##c4_Name);		\
+//	Swizzle<Vec4, Typename, c1, c3, c4, c2> SWIZZLE_NAME_4(C_##c1_Name, C_##c3_Name, C_##c4_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c1, c4, c2, c3> SWIZZLE_NAME_4(C_##c1_Name, C_##c4_Name, C_##c2_Name, C_##c3_Name);		\
+//	Swizzle<Vec4, Typename, c1, c4, c3, c2> SWIZZLE_NAME_4(C_##c1_Name, C_##c4_Name, C_##c3_Name, C_##c2_Name);		\
+//
+//#define SWIZZLE_4_3(Typename, c1, c2, c3)	\
+//	Swizzle<Vec4, Typename, c1, c1, c2, c3> SWIZZLE_NAME_4(C_##c1_Name, C_##c1_Name, C_##c2_Name, C_##c3_Name);		\
+//	Swizzle<Vec4, Typename, c1, c1, c3, c2> SWIZZLE_NAME_4(C_##c1_Name, C_##c1_Name, C_##c3_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c1, c2, c1, c3> SWIZZLE_NAME_4(C_##c1_Name, C_##c2_Name, C_##c1_Name, C_##c3_Name);		\
+//	Swizzle<Vec4, Typename, c1, c3, c1, c2> SWIZZLE_NAME_4(C_##c1_Name, C_##c3_Name, C_##c1_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c2, c1, c1, c3> SWIZZLE_NAME_4(C_##c2_Name, C_##c1_Name, C_##c1_Name, C_##c3_Name);		\
+//	Swizzle<Vec4, Typename, c3, c1, c1, c2> SWIZZLE_NAME_4(C_##c3_Name, C_##c1_Name, C_##c1_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c2, c3, c1, c1> SWIZZLE_NAME_4(C_##c2_Name, C_##c3_Name, C_##c1_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c3, c2, c1, c1> SWIZZLE_NAME_4(C_##c3_Name, C_##c2_Name, C_##c1_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c1, c2, c3, c1> SWIZZLE_NAME_4(C_##c1_Name, C_##c2_Name, C_##c3_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c1, c3, c2, c1> SWIZZLE_NAME_4(C_##c1_Name, C_##c3_Name, C_##c2_Name, C_##c1_Name);		
+//
+//#define SWIZZLE_4_2(Typename, c1, c2)	\
+//	Swizzle<Vec4, Typename, c1, c1, c1, c2> SWIZZLE_NAME_4(C_##c1_Name, C_##c1_Name, C_##c1_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c1, c1, c2, c1> SWIZZLE_NAME_4(C_##c1_Name, C_##c1_Name, C_##c2_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c1, c2, c1, c1> SWIZZLE_NAME_4(C_##c1_Name, C_##c2_Name, C_##c1_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c2, c1, c1, c1> SWIZZLE_NAME_4(C_##c2_Name, C_##c1_Name, C_##c1_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c1, c1, c2, c2> SWIZZLE_NAME_4(C_##c1_Name, C_##c1_Name, C_##c2_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c1, c2, c1, c2> SWIZZLE_NAME_4(C_##c1_Name, C_##c2_Name, C_##c1_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c2, c1, c1, c2> SWIZZLE_NAME_4(C_##c2_Name, C_##c1_Name, C_##c1_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c2, c1, c2, c1> SWIZZLE_NAME_4(C_##c2_Name, C_##c1_Name, C_##c2_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c2, c2, c1, c1> SWIZZLE_NAME_4(C_##c2_Name, C_##c2_Name, C_##c1_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c1, c2, c2, c1> SWIZZLE_NAME_4(C_##c1_Name, C_##c2_Name, C_##c2_Name, C_##c1_Name);		\
+//	Swizzle<Vec4, Typename, c1, c2, c2, c2> SWIZZLE_NAME_4(C_##c1_Name, C_##c2_Name, C_##c2_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c2, c2, c1, c2> SWIZZLE_NAME_4(C_##c2_Name, C_##c2_Name, C_##c1_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c2, c1, c2, c2> SWIZZLE_NAME_4(C_##c2_Name, C_##c1_Name, C_##c2_Name, C_##c2_Name);		\
+//	Swizzle<Vec4, Typename, c2, c2, c2, c1> SWIZZLE_NAME_4(C_##c2_Name, C_##c2_Name, C_##c2_Name, C_##c1_Name);
+//
+//
+//#define SWIZZLE_3(Typename)				\
+//	SWIZZLE_3_1(Typename, 0)			\
+//	SWIZZLE_3_1(Typename, 1)			\
+//	SWIZZLE_3_1(Typename, 2)			\
+//	SWIZZLE_3_2(Typename, 0, 1)			\
+//	SWIZZLE_3_2(Typename, 0, 2)			\
+//	SWIZZLE_3_2(Typename, 1, 2)			\
+//	SWIZZLE_3_3(Typename, 0, 1, 2)		\
+//	SWIZZLE_3_3(Typename, 1, 2, 0)		\
+//	SWIZZLE_3_3(Typename, 2, 0, 1)		\
+//	SWIZZLE_3_4(Typename, 0, 1, 2, 0)	\
+//	SWIZZLE_3_4(Typename, 1, 2, 0, 1)	\
+//	SWIZZLE_3_4(Typename, 2, 0, 1, 2)	\
+//
+//#define SWIZZLE_4(Typename)				\
+//	SWIZZLE_4_1(Typename, 0)			\
+//	SWIZZLE_4_1(Typename, 1)			\
+//	SWIZZLE_4_1(Typename, 2)			\
+//	SWIZZLE_4_1(Typename, 3)			\
+//	SWIZZLE_4_2(Typename, 0, 1)			\
+//	SWIZZLE_4_2(Typename, 0, 2)			\
+//	SWIZZLE_4_2(Typename, 0, 3)			\
+//	SWIZZLE_4_2(Typename, 1, 2)			\
+//	SWIZZLE_4_2(Typename, 1, 3)			\
+//	SWIZZLE_4_2(Typename, 2, 3)			\
+//	SWIZZLE_4_3(Typename, 0, 1, 2)		\
+//	SWIZZLE_4_3(Typename, 0, 2, 3)		\
+//	SWIZZLE_4_3(Typename, 0, 3, 1)		\
+//	SWIZZLE_4_3(Typename, 1, 2, 3)		\
+//	SWIZZLE_4_3(Typename, 1, 3, 0)		\
+//	SWIZZLE_4_3(Typename, 1, 0, 2)		\
+//	SWIZZLE_4_3(Typename, 2, 3, 1)		\
+//	SWIZZLE_4_3(Typename, 2, 0, 1)		\
+//	SWIZZLE_4_3(Typename, 2, 3, 0)		\
+//	SWIZZLE_4_3(Typename, 3, 0, 1)		\
+//	SWIZZLE_4_3(Typename, 3, 1, 2)		\
+//	SWIZZLE_4_3(Typename, 3, 2, 0)		\
+//	SWIZZLE_4_4(Typename, 0, 1, 2, 3)	\
+//	SWIZZLE_4_4(Typename, 1, 2, 3, 0)	\
+//	SWIZZLE_4_4(Typename, 2, 3, 0, 1)	\
+//	SWIZZLE_4_4(Typename, 3, 0, 1, 2)	\
+
+
+//Swizzle<Vec2, TypeName, 0, 1> xy;
+//Swizzle<Vec2, TypeName, 1, 0> yx;
+//
+//Swizzle<Vec3, TypeName, 0, 0, 0> xxx;
+//Swizzle<Vec3, TypeName, 0, 0, 1> xxy;
+//Swizzle<Vec3, TypeName, 0, 1, 0> xyx;
+//Swizzle<Vec3, TypeName, 1, 0, 0> yxx;
+//Swizzle<Vec3, TypeName, 1, 1, 0> yyx;
+//Swizzle<Vec3, TypeName, 1, 0, 1> yxy;
+//Swizzle<Vec3, TypeName, 0, 1, 1> xyy;
+//Swizzle<Vec3, TypeName, 1, 1, 1> yyy;
+//
+//Swizzle<Vec3, TypeName, 0, 0, 0, 0> xxxx;
+//Swizzle<Vec3, TypeName, 0, 0, 0, 1> xxxy;
+//Swizzle<Vec3, TypeName, 0, 0, 1, 0> xxyx;
+//Swizzle<Vec3, TypeName, 0, 1, 0, 0> xyxx;
+//Swizzle<Vec3, TypeName, 1, 0, 0, 0> yxxx;
+//Swizzle<Vec3, TypeName, 0, 0, 1, 1> xxyy;
+//Swizzle<Vec3, TypeName, 0, 1, 0, 1> xyxy;
+//Swizzle<Vec3, TypeName, 1, 0, 0, 1> yxxy;
+//Swizzle<Vec3, TypeName, 1, 1, 0, 0> yyxx;
+//Swizzle<Vec3, TypeName, 1, 0, 1, 0> yxyx;
+//Swizzle<Vec3, TypeName, 0, 1, 1, 0> xyyx;
+//Swizzle<Vec3, TypeName, 0, 1, 1, 1> xyyy;
+//Swizzle<Vec3, TypeName, 1, 0, 1, 1> yxyy;
+//Swizzle<Vec3, TypeName, 1, 1, 0, 1> yyxy;
+//Swizzle<Vec3, TypeName, 1, 1, 1, 0> yyyx;
+//Swizzle<Vec3, TypeName, 1, 1, 1, 1> yyyy;
+
+
+//template<template<typename> typename VecType, typename TypeName, int... Comps>
+//class Swizzle {
+//#define VEC_SIZE sizeof... (Comps)
+//
+//	TypeName m_v[VEC_SIZE];
+//public:
+//	VecType<TypeName>& operator=(const VecType<TypeName>& rhs)
+//	{
+//		for (int id{ 0 }; id < VEC_SIZE; ++id)
+//			m_v[Comps[id]] = rhs.m_data[Comps[id]];
+//
+//		return *(VecType<TypeName>*)this;
+//	}
+//
+//	operator VecType<TypeName>() const
+//	{
+//		return VecType<TypeName>(m_v[Comps]...);
+//	}
+//};
