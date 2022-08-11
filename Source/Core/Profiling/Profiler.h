@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "Core\Base\Singleton.h"
-#include "Core\Log\Logger.h"
 
 namespace SDBX
 {
@@ -32,9 +31,9 @@ namespace SDBX
 
 		~Profiler() override = default;
 		Profiler(const Profiler& other) = delete;
-		Profiler(Profiler&& other) = delete;
+		Profiler(Profiler&& other) noexcept = delete;
 		Profiler& operator=(const Profiler& other) = delete;
-		Profiler& operator=(Profiler&& other) = delete;
+		Profiler& operator=(Profiler&& other) noexcept = delete;
 
 		TimerHandle StartScopedTimer(const std::string& fileName, const std::string& fncName, uint32_t frameCount = 1);
 		size_t StartTimer(const std::string& fileName, const std::string& fncName, uint32_t frameCount = 1);

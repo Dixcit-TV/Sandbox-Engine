@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Profiler.h"
 
-#include "Core/Log/Logger.h"
+#include "Core\Log\Logger.h"
 
 size_t SDBX::Profiler::StartTimer(const std::string& fileName, const std::string& fncName, uint32_t frameCount)
 {

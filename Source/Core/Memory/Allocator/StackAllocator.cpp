@@ -1,26 +1,26 @@
 #include "pch.h"
 #include "StackAllocator.h"
 
-SDBX::StackAllocator::StackAllocator(const size_t size)
+SDBX::Memory::StackAllocator::StackAllocator(const size_t size)
 	: m_pCurrent((char*)malloc(size))
 	, m_BufferSize(size)
 	, m_FreeSpace(size)
 {}
 
-SDBX::StackAllocator::~StackAllocator()
+SDBX::Memory::StackAllocator::~StackAllocator()
 {
 	Reset();
 	free(m_pCurrent);
 }
 
-void SDBX::StackAllocator::FreeToMarker(const Marker marker)
+void SDBX::Memory::StackAllocator::FreeToMarker(const Marker marker)
 {
 	// Reset the stack till the marker
 	m_FreeSpace += size_t(m_pCurrent - marker);
 	m_pCurrent = marker;
 }
 
-void* SDBX::StackAllocator::Acquire(size_t nbBytes)
+void* SDBX::Memory::StackAllocator::Acquire(size_t nbBytes)
 {
 	SDBX_ASSERT(m_FreeSpace >= nbBytes, "SDBX::StackAllocator::Acquire(" + std::to_string(nbBytes) + ") : Allocator out of memory")
 
@@ -30,7 +30,7 @@ void* SDBX::StackAllocator::Acquire(size_t nbBytes)
 	return acquiredMemory;
 }
 
-void SDBX::StackAllocator::Reset()
+void SDBX::Memory::StackAllocator::Reset()
 {
 	// Free all memory of the stack
 	m_pCurrent -= (m_BufferSize - m_FreeSpace);

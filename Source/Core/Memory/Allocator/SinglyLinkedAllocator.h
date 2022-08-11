@@ -5,43 +5,46 @@
 
 namespace SDBX
 {
-	static const size_t DEFAULT_BLOCKSIZE = 16;
-
-	template<size_t BLOCKSIZE = DEFAULT_BLOCKSIZE>
-	class SinglyLinkedAllocator final
+	namespace Memory
 	{
-	public:
+		static const size_t DEFAULT_BLOCKSIZE = 16;
 
-		struct Block
+		template<size_t BLOCKSIZE = DEFAULT_BLOCKSIZE>
+		class SinglyLinkedAllocator final
 		{
-			size_t blockCount;
-			union {
-				Block* pNext;
-				char data[BLOCKSIZE - sizeof(blockCount)];
+		public:
+
+			struct Block
+			{
+				size_t blockCount;
+				union {
+					Block* pNext;
+					char data[BLOCKSIZE - sizeof(blockCount)];
+				};
 			};
+
+			explicit SinglyLinkedAllocator(size_t nbBlocks);
+			SinglyLinkedAllocator(const SinglyLinkedAllocator& other) = delete;
+			SinglyLinkedAllocator(SinglyLinkedAllocator&& other) noexcept = delete;
+			SinglyLinkedAllocator& operator=(const SinglyLinkedAllocator& other) = delete;
+			SinglyLinkedAllocator& operator=(SinglyLinkedAllocator&& other) noexcept = delete;
+			~SinglyLinkedAllocator();
+
+			template<typename Typename, typename... Arg_Type>
+			Typename* Acquire(Arg_Type&&... args);
+
+			template<typename Typename>
+			void Release(Typename* pData);
+
+		private:
+			Block* m_pHead;
+			size_t m_BufferSize;
 		};
-
-		explicit SinglyLinkedAllocator(size_t nbBlocks);
-		SinglyLinkedAllocator(const SinglyLinkedAllocator& other) = delete;
-		SinglyLinkedAllocator(SinglyLinkedAllocator&& other) noexcept = delete;
-		SinglyLinkedAllocator& operator=(const SinglyLinkedAllocator& other) = delete;
-		SinglyLinkedAllocator& operator=(SinglyLinkedAllocator&& other) noexcept = delete;
-		~SinglyLinkedAllocator();
-
-		template<typename Typename, typename... Arg_Type>
-		Typename* Acquire(Arg_Type&&... args);
-
-		template<typename Typename>
-		void Release(Typename* pData);
-
-	private:
-		Block* m_pHead;
-		size_t m_BufferSize;
-	};
+	}
 }
 
 template<size_t BLOCKSIZE>
-SDBX::SinglyLinkedAllocator<BLOCKSIZE>::SinglyLinkedAllocator(size_t nbBlocks)
+SDBX::Memory::SinglyLinkedAllocator<BLOCKSIZE>::SinglyLinkedAllocator(size_t nbBlocks)
 	: m_pHead(nullptr)
 	, m_BufferSize()
 {
@@ -62,7 +65,7 @@ SDBX::SinglyLinkedAllocator<BLOCKSIZE>::SinglyLinkedAllocator(size_t nbBlocks)
 }
 
 template<size_t BLOCKSIZE>
-SDBX::SinglyLinkedAllocator<BLOCKSIZE>::~SinglyLinkedAllocator()
+SDBX::Memory::SinglyLinkedAllocator<BLOCKSIZE>::~SinglyLinkedAllocator()
 {
 	delete[] m_pHead;
 	m_pHead = nullptr;
@@ -70,7 +73,7 @@ SDBX::SinglyLinkedAllocator<BLOCKSIZE>::~SinglyLinkedAllocator()
 
 template<size_t BLOCKSIZE>
 template<typename Typename, typename... Arg_Type>
-Typename* SDBX::SinglyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... args)
+Typename* SDBX::Memory::SinglyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... args)
 {
 	SDBX_ASSERT(m_pHead, "SDBX::SinglyLinkedAllocator<" + std::to_string(BLOCKSIZE) + ">::Acquire(" + std::to_string(sizeof(Typename)) + ") : m_pHead is NULL")
 
@@ -107,7 +110,7 @@ Typename* SDBX::SinglyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... args)
 
 template<size_t BLOCKSIZE>
 template<typename Typename>
-void SDBX::SinglyLinkedAllocator<BLOCKSIZE>::Release(Typename* pData)
+void SDBX::Memory::SinglyLinkedAllocator<BLOCKSIZE>::Release(Typename* pData)
 {
 	assert(m_pHead);
 

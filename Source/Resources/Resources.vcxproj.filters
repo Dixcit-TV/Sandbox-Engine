@@ -18,19 +18,13 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="API\DX11\Shader.h">
+    <ClInclude Include="Types\IResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="API\DX11\ShaderLoader.h">
+    <ClInclude Include="Loaders\ILoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="API\DX11\RenderStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="API\DX11\DX11Render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GPUStates.h">
+    <ClInclude Include="Manager\ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,13 +32,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="API\DX11\RenderStructs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="API\DX11\DX11Render.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GPUStates.cpp">
+    <ClCompile Include="Manager\ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

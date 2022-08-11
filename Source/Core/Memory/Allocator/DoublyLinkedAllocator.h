@@ -5,57 +5,60 @@
 
 namespace SDBX
 {
-	static const size_t DEFAULT_DL_BLOCKSIZE = 16;
-
-	template<size_t BLOCKSIZE = DEFAULT_DL_BLOCKSIZE>
-	class DoublyLinkedAllocator final
+	namespace Memory
 	{
-	public:
+		static const size_t DEFAULT_DL_BLOCKSIZE = 16;
 
-		struct Header
+		template<size_t BLOCKSIZE = DEFAULT_DL_BLOCKSIZE>
+		class DoublyLinkedAllocator final
 		{
-			size_t isFree: 1;
-			size_t blockCount: sizeof(size_t) - 1;
-		};
+		public:
 
-		struct Block : Header
-		{
-			struct Links
+			struct Header
 			{
-				Block* next;
-				Block* prev;
+				size_t isFree : 1;
+				size_t blockCount : sizeof(size_t) - 1;
 			};
-			union
+
+			struct Block : Header
 			{
-				Links link;
-				char data[BLOCKSIZE - sizeof(Header)];
+				struct Links
+				{
+					Block* next;
+					Block* prev;
+				};
+				union
+				{
+					Links link;
+					char data[BLOCKSIZE - sizeof(Header)];
+				};
 			};
+
+			explicit DoublyLinkedAllocator(size_t nbrBlocks = 0);
+			DoublyLinkedAllocator(const DoublyLinkedAllocator& other) = delete;
+			DoublyLinkedAllocator(DoublyLinkedAllocator&& other) noexcept = delete;
+			DoublyLinkedAllocator& operator=(const DoublyLinkedAllocator& other) = delete;
+			DoublyLinkedAllocator& operator=(DoublyLinkedAllocator&& other) noexcept = delete;
+			~DoublyLinkedAllocator();
+
+			template<typename Typename, typename... Arg_Type>
+			Typename* Acquire(Arg_Type&&... args);
+
+			template<typename Typename>
+			void Release(Typename* pData);
+
+		private:
+			Block* m_pHead;
+			size_t m_BufferSize;
+
+			void InsertAfter(Block& firstBlock, Block& secondBlock);
+			void UnLink(Block& block);
 		};
-
-		explicit DoublyLinkedAllocator(size_t nbrBlocks = 0);
-		DoublyLinkedAllocator(const DoublyLinkedAllocator& other) = delete;
-		DoublyLinkedAllocator(DoublyLinkedAllocator&& other) noexcept = delete;
-		DoublyLinkedAllocator& operator=(const DoublyLinkedAllocator& other) = delete;
-		DoublyLinkedAllocator& operator=(DoublyLinkedAllocator&& other) noexcept = delete;
-		~DoublyLinkedAllocator();
-
-		template<typename Typename, typename... Arg_Type>
-		Typename* Acquire(Arg_Type&&... args);
-
-		template<typename Typename>
-		void Release(Typename* pData);
-
-	private:
-		Block* m_pHead;
-		size_t m_BufferSize;
-
-		void InsertAfter(Block& firstBlock, Block& secondBlock);
-		void UnLink(Block& block);
-	};
+	}
 }
 
 template<size_t BLOCKSIZE>
-SDBX::DoublyLinkedAllocator<BLOCKSIZE>::DoublyLinkedAllocator(size_t nbrBlocks)
+SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::DoublyLinkedAllocator(size_t nbrBlocks)
 	: m_pHead(nullptr)
 	, m_BufferSize()
 {
@@ -77,7 +80,7 @@ SDBX::DoublyLinkedAllocator<BLOCKSIZE>::DoublyLinkedAllocator(size_t nbrBlocks)
 }
 
 template<size_t BLOCKSIZE>
-SDBX::DoublyLinkedAllocator<BLOCKSIZE>::~DoublyLinkedAllocator()
+SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::~DoublyLinkedAllocator()
 {
 	delete[] m_pHead;
 	m_pHead = nullptr;
@@ -85,7 +88,7 @@ SDBX::DoublyLinkedAllocator<BLOCKSIZE>::~DoublyLinkedAllocator()
 
 template<size_t BLOCKSIZE>
 template<typename Typename, typename... Arg_Type>
-Typename* SDBX::DoublyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... args)
+Typename* SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... args)
 {
 	SDBX_ASSERT(m_pHead, "SDBX::DoublyLinkedAllocator<" + std::to_string(BLOCKSIZE) + ">::Acquire(" + std::to_string(sizeof(Typename)) + ") : m_pHead is NULL")
 
@@ -124,7 +127,7 @@ Typename* SDBX::DoublyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... args)
 
 template<size_t BLOCKSIZE>
 template<typename Typename>
-void SDBX::DoublyLinkedAllocator<BLOCKSIZE>::Release(Typename* pData)
+void SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::Release(Typename* pData)
 {
 	SDBX_ASSERT(m_pHead, "SDBX::DoublyLinkedAllocator<" + std::to_string(BLOCKSIZE) + ">::Acquire(" + std::to_string(sizeof(Typename)) + ") : m_pHead is NULL")
 
@@ -138,14 +141,14 @@ void SDBX::DoublyLinkedAllocator<BLOCKSIZE>::Release(Typename* pData)
 }
 
 template<size_t BLOCKSIZE>
-void SDBX::DoublyLinkedAllocator<BLOCKSIZE>::UnLink(Block& block)
+void SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::UnLink(Block& block)
 {
 	block.link.next->link.prev = block.link.prev;
 	block.link.prev->link.next = block.link.next;
 }
 
 template<size_t BLOCKSIZE>
-void SDBX::DoublyLinkedAllocator<BLOCKSIZE>::InsertAfter(Block& firstBlock, Block& secondBlock)
+void SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::InsertAfter(Block& firstBlock, Block& secondBlock)
 {
 	secondBlock.link.next = firstBlock.link.next;
 	secondBlock.link.prev = &firstBlock;

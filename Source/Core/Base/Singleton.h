@@ -13,9 +13,9 @@ namespace SDBX
 
 		virtual ~Singleton() = default;
 		Singleton(const Singleton& other) = delete;
-		Singleton(Singleton&& other) = delete;
+		Singleton(Singleton&& other) noexcept = delete;
 		Singleton& operator=(const Singleton& other) = delete;
-		Singleton& operator=(Singleton&& other) = delete;
+		Singleton& operator=(Singleton&& other) noexcept = delete;
 
 	protected:
 		explicit Singleton() = default;

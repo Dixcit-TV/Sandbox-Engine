@@ -16,7 +16,7 @@ namespace SDBX
 
 		using Components = std::vector<IComponent*>;
 		
-		explicit GameObject(const Transform& transform = Transform(), const std::string& name = "GameObject", const std::string& tag = "")
+		explicit GameObject(const Transform& transform = Transform(), const std::wstring& name = L"GameObject", const std::wstring& tag = L"")
 			: m_ComponentPtrs{ }, m_Transform{ transform }, m_Name{ name }, m_Tag{ tag }/*, m_pParentScene{}*/, m_IsEnabled{ true } {}
 		GameObject(const GameObject& other) = delete;
 		GameObject(GameObject&& other) = delete;
@@ -42,9 +42,9 @@ namespace SDBX
 
 		//std::shared_ptr<Scene> GetScene() const { return m_pParentScene.lock(); }
 
-		const std::string& GetName() const { return m_Name; }
-		const std::string& GetTag() const { return m_Tag; }
-		void SetTag(const std::string& newTag) { m_Tag = newTag; }
+		const std::wstring& GetName() const { return m_Name; }
+		const std::wstring& GetTag() const { return m_Tag; }
+		void SetTag(const std::wstring& newTag) { m_Tag = newTag; }
 
 		void SetEnable(bool enable) { m_IsEnabled = enable; }
 		bool IsEnabled() const { return m_IsEnabled; }
@@ -54,8 +54,8 @@ namespace SDBX
 	private:
 		Components m_ComponentPtrs;
 		Transform m_Transform;
-		std::string m_Name;
-		std::string m_Tag;
+		std::wstring m_Name;
+		std::wstring m_Tag;
 		//std::weak_ptr<Scene> m_pParentScene;
 		bool m_IsEnabled;
 	};
@@ -72,8 +72,8 @@ namespace SDBX
 	template<typename ComponentType, typename>
 	ComponentType* GameObject::GetComponent() const
 	{
-		auto it{ std::find_if(std::cbegin(m_ComponentPtrs), std::cend(m_ComponentPtrs), [](const Components::value_type& c) { return dynamic_cast<ComponentType>(c); }) };
+		auto it{ std::find_if(std::cbegin(m_ComponentPtrs), std::cend(m_ComponentPtrs), [](const Components::value_type& c) { return dynamic_cast<ComponentType*>(c); }) };
 
-		return it != std::cend(m_ComponentPtrs) ? static_cast<ComponentType>(*it) : nullptr;
+		return it != std::cend(m_ComponentPtrs) ? static_cast<ComponentType*>(*it) : nullptr;
 	}
 }

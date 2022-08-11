@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{690514a2-c59c-4acb-8641-18fdfef23fa7}</ProjectGuid>
-    <RootNamespace>Gameplay</RootNamespace>
+    <ProjectGuid>{bf0413f6-6ccc-415c-9629-fc396c295e1b}</ProjectGuid>
+    <RootNamespace>Resources</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -187,12 +187,13 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Components\IComponent.h" />
-    <ClInclude Include="Components\Transform.h" />
-    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Loaders\ILoader.h" />
+    <ClInclude Include="Manager\ResourceManager.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Types\IResource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Manager\ResourceManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
