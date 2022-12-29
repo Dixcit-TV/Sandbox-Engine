@@ -18,5 +18,5 @@ void SDBX::Resource::ResourceManager::RegisterLoader(ILoader* resourceLoader)
 
 	[[maybe_unused]] bool added{ m_Loaders.try_emplace(typeName, resourceLoader).second };
 
-	SDBX_ASSERT_AS_WARNING(added, "could not add loader for type " + typeName + ", it might already have been registered.");
+	SDBX_ASSERT_AS_WARNING_MSG(added, "Could not add loader for type " + typeName + ", it might already have been registered.");
 }

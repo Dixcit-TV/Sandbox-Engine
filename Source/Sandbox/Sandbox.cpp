@@ -68,27 +68,33 @@ int wmain(int, wchar_t* [])
     [[maybe_unused]] float l3 = SDBX::Vector::Length(v3);
     [[maybe_unused]] float l2 = SDBX::Vector::Length(v2i);
 
-    SDBX_ASSERT(v10 == v10_2, "");
+    SDBX_W_ASSERT(v10 == v10_2);
 
     v10_2.data[8] = 15.0;
 
-    SDBX_ASSERT(v10 != v10_2, "");
+    SDBX_W_ASSERT(v10 != v10_2);
 
-    SDBX_ASSERT(v5 == v5_2, "");
+    SDBX_W_ASSERT(v5 == v5_2);
 
     SDBX::Vector::Vec<int, 5> v5_4{ 1, 2, 3, 4 };
 
     int i5_4[5]{ 1, 2, 3, 4, 0 };
     SDBX::Vector::Vec<int, 5> v5_4_2{ i5_4 };
 
-    SDBX_ASSERT(v5_4 == v5_4_2, "");
+    SDBX_W_ASSERT(v5_4 == v5_4_2);
 
     SDBX::Matrix::Mat22f m{ SDBX::Matrix::Mat22f::Identity() };
 
-    SDBX_ASSERT(m == (SDBX::Matrix::Mat22f::Identity()), "");
+    SDBX_W_ASSERT(m == (SDBX::Matrix::Mat22f::Identity()));
 
     SDBX::Matrix::Mat33f m33{ SDBX::Matrix::Mat33f::Identity() };
     SDBX::Matrix::Mat33f t{ SDBX::Matrix::Transpose(m33) };
+
+    SDBX::Vector::Vec<float, 3> vForMat{ 15.f, 984.f, 2.f};
+    //SDBX::Matrix::Matf<3, 5> Mat35_0{ 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f };
+    SDBX::Vector::Vec<float, 3> vArray[5]{ vForMat, vForMat, vForMat, vForMat, vForMat };
+    SDBX::Matrix::Matf<3, 5> Mat35{ vArray };
+    //SDBX::Matrix::Matf<3, 5> Mat35_2{ vForMat, vForMat, vForMat, vForMat, vForMat };
 
     MSG msg;
     ZeroMemory(&msg, sizeof(MSG));

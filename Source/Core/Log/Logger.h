@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <iostream>
+#include <string>
 
 #include "Core/Base/Singleton.h"
 
@@ -100,13 +101,21 @@ namespace SDBX
 #define SDBX_STATIC_ASSERT(exp, msg) static_assert(exp, msg)
 
 #if defined(SDBX_LOGGER_RELEASE_ASSERT) || defined(_DEBUG) || defined(DEBUG)
-	#define SDBX_ASSERT(exp, msg) if (!(exp)) SDBX::Logger::Log<std::string>(SDBX::Logger::LogLevel::ERROR_LOG, std::string(#exp) + ": " + msg);
-	#define SDBX_ASSERT_AS_WARNING(exp, msg) if (!(exp)) SDBX::Logger::Log<std::string>(SDBX::Logger::LogLevel::WARNING_LOG, std::string(#exp) + ": " + msg);
-	#define SDBX_LOG(logLevel, msg) SDBX::Logger::Log<std::string>(SDBX::Logger::LogLevel::##logLevel, msg);
+	#define SDBX_DEBUG_LOGTEXT(msg) std::string(STR1(__FILE__)) + "\n\tFunction: " + __func__ + "\n\t\t" + msg
+	#define SDBX_ASSERT_IMP(logLevel, exp, msg) if (!(exp)) SDBX::Logger::Log<std::string>(SDBX::Logger::LogLevel::##logLevel, SDBX_DEBUG_LOGTEXT(std::string(STR1(exp)) + ": " + msg));
+	#define SDBX_ASSERT(exp) SDBX_ASSERT_IMP(ERROR_LOG, exp, "")
+	#define SDBX_ASSERT_MSG(exp, msg) SDBX_ASSERT_IMP(ERROR_LOG, exp, msg)
+	#define SDBX_ASSERT_AS_WARNING(exp) SDBX_ASSERT_IMP(WARNING_LOG, exp, "")
+	#define SDBX_ASSERT_AS_WARNING_MSG(exp, msg) SDBX_ASSERT_IMP(WARNING_LOG, exp, msg)
+	#define SDBX_LOG(logLevel, msg) SDBX::Logger::Log(SDBX::Logger::LogLevel::##logLevel, msg);
 
-	#define SDBX_W_ASSERT(exp, msg) if (!(exp)) SDBX::Logger::LogW<std::wstring>(SDBX::Logger::LogLevel::ERROR_LOG, std::wstring(WSTR1(exp)) + L": " + msg);
-	#define SDBX_W_ASSERT_AS_WARNING(exp, msg) if (!(exp)) SDBX::Logger::LogW<std::wstring>(SDBX::Logger::LogLevel::WARNING_LOG, std::wstring(WSTR1(exp)) + L": " + msg);
-	#define SDBX_W_LOG(logLevel, msg) SDBX::Logger::LogW<std::wstring>(SDBX::Logger::LogLevel::##logLevel, msg);
+	#define SDBX_W_DEBUG_LOGTEXT(msg) std::wstring(WSTR1(__FILE__)) + L"\n\t" + std::wstring(std::begin(__func__), std::end(__func__)) + L"\n\t\t" + msg
+	#define SDBX_W_ASSERT_IMP(logLevel, exp, msg) if (!(exp)) SDBX::Logger::LogW<std::wstring>(SDBX::Logger::LogLevel::##logLevel, SDBX_W_DEBUG_LOGTEXT(std::wstring(WSTR1(exp)) + L": " + msg));
+	#define SDBX_W_ASSERT(exp) SDBX_W_ASSERT_IMP(ERROR_LOG, exp, L"")
+	#define SDBX_W_ASSERT_MSG(exp, msg) SDBX_W_ASSERT_IMP(ERROR_LOG, exp, msg)
+	#define SDBX_W_ASSERT_AS_WARNING(exp) SDBX_W_ASSERT_IMP(WARNING_LOG, exp, L"")
+	#define SDBX_W_ASSERT_AS_WARNING_MSG(exp, msg) SDBX_W_ASSERT_IMP(WARNING_LOG, exp, msg)
+	#define SDBX_W_LOG(logLevel, msg) SDBX::Logger::LogW(SDBX::Logger::LogLevel::##logLevel, msg);
 #else
 	#define SDBX_ASSERT(exp, msg)
 	#define SDBX_ASSERT_AS_WARNING(exp, msg)

@@ -90,7 +90,7 @@ template<size_t BLOCKSIZE>
 template<typename Typename, typename... Arg_Type>
 Typename* SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... args)
 {
-	SDBX_ASSERT(m_pHead, "SDBX::DoublyLinkedAllocator<" + std::to_string(BLOCKSIZE) + ">::Acquire(" + std::to_string(sizeof(Typename)) + ") : m_pHead is NULL")
+	SDBX_ASSERT_MSG(m_pHead, "m_pHead is NULL")
 
 	const auto nbBlocks = (sizeof(Typename) + sizeof(Header) + sizeof(Block) - 1) / sizeof(Block);
 
@@ -106,7 +106,7 @@ Typename* SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... 
 		}
 	}
 
-	SDBX_ASSERT(pCurrent != m_pHead, "SDBX::DoublyLinkedAllocator<" + std::to_string(BLOCKSIZE) + ">::Acquire(" + std::to_string(sizeof(Typename)) + ") : Allocator out of memory")
+	SDBX_ASSERT_MSG(pCurrent != m_pHead, "Allocator out of memory")
 
 	if (pCurrent->blockCount > nbBlocks)
 	{
@@ -129,11 +129,11 @@ template<size_t BLOCKSIZE>
 template<typename Typename>
 void SDBX::Memory::DoublyLinkedAllocator<BLOCKSIZE>::Release(Typename* pData)
 {
-	SDBX_ASSERT(m_pHead, "SDBX::DoublyLinkedAllocator<" + std::to_string(BLOCKSIZE) + ">::Acquire(" + std::to_string(sizeof(Typename)) + ") : m_pHead is NULL")
+	SDBX_ASSERT_MSG(m_pHead, "m_pHead is NULL")
 
 	Block* pBlock = reinterpret_cast<Block*>(reinterpret_cast<Header*>(pData) - 1);
 
-	SDBX_ASSERT(pBlock > m_pHead && pBlock < m_pHead + m_BufferSize + 1, "")
+	SDBX_ASSERT(pBlock > m_pHead && pBlock < m_pHead + m_BufferSize + 1)
 
 	pData->~Typename();
 	InsertAfter(*m_pHead, *pBlock);

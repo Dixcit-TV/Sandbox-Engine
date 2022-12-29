@@ -106,7 +106,7 @@ template<typename Typename>
 template<typename... Arg_Type>
 Typename* SDBX::Memory::FixedSizeAllocator<Typename>::Acquire(Arg_Type&&... args)
 {
-	SDBX_ASSERT(m_InUseCount < m_BufferSize, "SDBX::FixedSizeAllocator::Acquire() : Allocator out of memory")
+	SDBX_ASSERT_MSG(m_InUseCount < m_BufferSize, "Allocator out of memory")
 
 	Typename* acquiredElement{ (m_pBegin + m_InUseCount) };
 	++m_InUseCount;

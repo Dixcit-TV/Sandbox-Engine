@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "StackAllocator.h"
 
 SDBX::Memory::StackAllocator::StackAllocator(const size_t size)
@@ -22,7 +21,7 @@ void SDBX::Memory::StackAllocator::FreeToMarker(const Marker marker)
 
 void* SDBX::Memory::StackAllocator::Acquire(size_t nbBytes)
 {
-	SDBX_ASSERT(m_FreeSpace >= nbBytes, "SDBX::StackAllocator::Acquire(" + std::to_string(nbBytes) + ") : Allocator out of memory")
+	SDBX_ASSERT_MSG(m_FreeSpace >= nbBytes, "Allocator out of memory")
 
 	m_FreeSpace -= nbBytes;
 	void* acquiredMemory{ static_cast<void*>(m_pCurrent) };

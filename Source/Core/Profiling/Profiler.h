@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Core\Base\Singleton.h"
+#include "Core\Log\Logger.h"
 
 namespace SDBX
 {

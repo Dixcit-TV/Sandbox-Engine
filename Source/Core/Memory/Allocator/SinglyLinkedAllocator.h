@@ -1,6 +1,4 @@
 #pragma once
-#include <string>
-
 #include "Core/Log/Logger.h"
 
 namespace SDBX
@@ -75,7 +73,7 @@ template<size_t BLOCKSIZE>
 template<typename Typename, typename... Arg_Type>
 Typename* SDBX::Memory::SinglyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... args)
 {
-	SDBX_ASSERT(m_pHead, "SDBX::SinglyLinkedAllocator<" + std::to_string(BLOCKSIZE) + ">::Acquire(" + std::to_string(sizeof(Typename)) + ") : m_pHead is NULL")
+	SDBX_ASSERT_MSG(m_pHead, "m_pHead is NULL")
 
 	//calculate the number of blocks required to store the Typename object (requires extra space to store the block count) 
 	const auto nbBlocks = (sizeof(Typename) + sizeof(Block::blockCount) + BLOCKSIZE - 1) / BLOCKSIZE;
@@ -88,7 +86,7 @@ Typename* SDBX::Memory::SinglyLinkedAllocator<BLOCKSIZE>::Acquire(Arg_Type&&... 
 	}
 
 	//Reached end of the buffer without finding enough space
-	SDBX_ASSERT(pNextBlock, "SDBX::SinglyLinkedAllocator<" + std::to_string(BLOCKSIZE) + ">::Acquire(" + std::to_string(sizeof(Typename)) + ") : Allocator out of memory")
+	SDBX_ASSERT_MSG(pNextBlock, "Allocator out of memory")
 
 	//if the free block is larger than the requested number of blocks, need to split the free block to only acquire the minimum requested number of block and create a free block with the rest
 	if (pNextBlock->blockCount > nbBlocks)
@@ -112,11 +110,11 @@ template<size_t BLOCKSIZE>
 template<typename Typename>
 void SDBX::Memory::SinglyLinkedAllocator<BLOCKSIZE>::Release(Typename* pData)
 {
-	assert(m_pHead);
+	SDBX_ASSERT_MSG(m_pHead, "m_pHead is NULL")
 
 	Block* pBlock = reinterpret_cast<Block*>(reinterpret_cast<char*>(pData) - sizeof(Block::blockCount));
 
-	SDBX_ASSERT(pBlock > m_pHead && pBlock < m_pHead + m_BufferSize + 1, "")
+	SDBX_ASSERT(pBlock > m_pHead && pBlock < m_pHead + m_BufferSize + 1)
 
 	Block* pFreeBlock{ m_pHead };
 	while (pFreeBlock->pNext != nullptr && pFreeBlock->pNext < pBlock)

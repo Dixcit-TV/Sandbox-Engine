@@ -32,7 +32,7 @@ namespace SDBX
 			{
 				size_t nbBytes = sizeof(Typename);
 
-				SDBX_ASSERT(m_FreeSpace >= nbBytes, "SDBX::StackAllocator::Acquire(): Allocator out of memory")
+				SDBX_ASSERT_MSG(m_FreeSpace >= nbBytes, "Allocator out of memory")
 
 					m_FreeSpace -= nbBytes;
 				auto acquiredMemory{ m_pCurrent };
