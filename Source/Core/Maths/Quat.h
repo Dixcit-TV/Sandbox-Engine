@@ -42,11 +42,8 @@ namespace SDBX
 			template<typename U>
 			inline Quaternion& operator /=(U scalar)
 			{
-				data[0] /= static_cast<TypeName>(scalar);
-				data[1] /= static_cast<TypeName>(scalar);
-				data[2] /= static_cast<TypeName>(scalar);
-				data[3] /= static_cast<TypeName>(scalar);
-				return *this;
+				TypeName invScalar{ 1 / static_cast<TypeName>(scalar) };
+				return (*this) *= invScalar;
 			}
 
 			template<typename U>
@@ -85,10 +82,11 @@ namespace SDBX
 		template<typename T>
 		inline static void Rotate(Matrix::Mat44<T>& m, const Quaternion<T>& q)
 		{
-			Vector::Vec3<T> img{ q.data[1], q.data[2], q.data[3] };
-			m[0] += Vector::Cross((img + img), (Vector::Cross(img, Elite::Vector<3, T>(m[0])) + q.data[0] * Elite::Vector<3, T>(m[0])));
-			m[1] += Vector::Cross((img + img), (Vector::Cross(img, Elite::Vector<3, T>(m[1])) + q.data[0] * Elite::Vector<3, T>(m[1])));
-			m[2] += Vector::Cross((img + img), (Vector::Cross(img, Elite::Vector<3, T>(m[2])) + q.data[0] * Elite::Vector<3, T>(m[2])));
+			const Vector::Vec3<T> img{ q.data[1], q.data[2], q.data[3] };
+			const Vector::Vec3<T> v1{ Vector::Vec3<T>(m[0]) }, v2{ Vector::Vec3<T>(m[1]) }, v3{ Vector::Vec3<T>(m[2]) };
+			m[0] += Vector::Cross((img + img), (Vector::Cross(img, v1) + q.data[0] * v1));
+			m[1] += Vector::Cross((img + img), (Vector::Cross(img, v2) + q.data[0] * v2));
+			m[2] += Vector::Cross((img + img), (Vector::Cross(img, v3) + q.data[0] * v3));
 		}
 
 		template<typename T>

@@ -1,6 +1,7 @@
 #pragma once
 #include <type_traits>
 
+#include "Core\Log\Logger.h"
 #include "Core\Maths\Vec.h"
 
 namespace SDBX
@@ -13,36 +14,39 @@ namespace SDBX
 			TypeName data[N][M];
 
 			explicit Mat() : data{ 0 } {};
-			template<typename T, int O, int P, typename = std::enable_if_t<O >= M && P >= N>>
-			explicit Mat(T values[P][O]) : Mat()
+			template<int O, int P>
+			explicit Mat(TypeName values[P][O]) : Mat()
 			{
-				for (int n{ 0 }; n < N; ++n)
-					for (int m{ 0 }; m < M; ++m)
-						data[n][m] = TypeName(values[n][m]);
+				constexpr int m = O > M ? M : O;
+				constexpr int n = P > N ? N : P;
+
+				for (int n0{ 0 }; n0 < n; ++n0)
+					for (int m0{ 0 }; m0 < m; ++m0)
+						data[n0][m0] = static_cast<TypeName>(values[n0][m0]);
 			}
 
-			template<typename... T>
-			explicit Mat(T&&... values) : Mat()
+			template<typename... ValType, typename = std::enable_if_t<std::is_same_v<TypeName, ValType>...>>
+			explicit Mat(ValType&&... values) : Mat()
 			{
+				SDBX_STATIC_ASSERT(sizeof...(values) <= (N * M), "Too many arguments provided to initialize Matrix!");
 				for (int n{ 0 }; n < N; ++n)
 					for (int m{ 0 }; m < M; ++m)
-						data[n][m] = TypeName(values[n * N + m]);
+						data[n][m] = static_cast<TypeName>((values, ...));
 			}
 
-			//template<template<typename, int>typename... VecType>
-			//explicit Mat(VecType<TypeName, M>... values) : Mat()
-			//{
-			//	//for (int n{ 0 }; n < N; ++n)
-			//	//	for (int m{ 0 }; m < M; ++m)
-			//	//		data[n][m] = TypeName(values[n * N + m]);
-			//}
+			template<bool AsVector>
+			explicit Mat(SDBX::Vector::Vec<TypeName, M, AsVector> vectors[N]) : Mat()
+			{
+				for (int n{ 0 }; n < N; ++n)
+					memcpy(data[n], vectors[n].data, M);
+			}
 
 			template<typename T, int O, int P, typename = std::enable_if_t<O >= M && P >= N>>
 			explicit Mat(const Mat<T, O, P>& m) : Mat()
 			{
 				for (int n{ 0 }; n < N; ++n)
 					for (int m{ 0 }; m < M; ++m)
-						data[n][m] = TypeName(m.data[n][m]);
+						data[n][m] = static_cast<TypeName>(m.data[n][m]);
 			}
 
 			template<typename T, int O, int P, typename = std::enable_if_t<O >= M && P >= N>>
@@ -50,7 +54,7 @@ namespace SDBX
 			{
 				for (int p{ 0 }; p < P; ++p)
 					for (int o{ 0 }; o < O; ++o)
-						data[p][o] = TypeName(m.data[p][o]);
+						data[p][o] = static_cast<TypeName>(m.data[p][o]);
 			}
 		
 			template<typename = std::enable_if_t<M == N>>
@@ -58,7 +62,7 @@ namespace SDBX
 			{ 
 				Mat mat{};
 				for (int idx{ 0 }; idx < M; ++idx)
-					mat.data[idx][idx] = TypeName(1);
+					mat.data[idx][idx] = static_cast<TypeName>(1);
 
 				return mat;
 			}
@@ -68,7 +72,7 @@ namespace SDBX
 			{
 				for (int n{ 0 }; n < N; ++n)
 					for (int m{ 0 }; m < M; ++m)
-						data[n][m] = TypeName(m.data[n][m]);
+						data[n][m] = static_cast<TypeName>(m.data[n][m]);
 
 				return *this;
 			}
@@ -78,7 +82,7 @@ namespace SDBX
 			{
 				for (int n{ 0 }; n < N; ++n)
 					for (int m{ 0 }; m < M; ++m)
-						data[n][m] = TypeName(m.data[n][m]);
+						data[n][m] = static_cast<TypeName>(m.data[n][m]);
 
 				return *this;
 			}
@@ -89,7 +93,7 @@ namespace SDBX
 				bool equal = true;
 				for (int m{ 0 }; m < M; ++m)
 					for (int n{ 0 }; n < N; ++n)
-						equal &= data[m][n] == TypeName(rhs.data[m][n]);
+						equal &= data[m][n] == static_cast<TypeName>(rhs.data[m][n]);
 
 				return equal;
 			}
@@ -103,7 +107,7 @@ namespace SDBX
 				for (int o{ 0 }; o < O; ++o)
 					for (int m{ 0 }; m < M; ++m)
 						for (int n{ 0 }; n < N; ++n)
-							m.data[o][m] += data[n][m] * TypeName(rhs.data[o][n]);
+							m.data[o][m] += data[n][m] * static_cast<TypeName>(rhs.data[o][n]);
 
 				return m;
 			}
@@ -113,7 +117,7 @@ namespace SDBX
 				Vector::Vec<T, N> ret{ };
 				for (int m{ 0 }; m < M; ++m)
 					for (int n{ 0 }; n < N; ++n)
-						ret[m] += data[n][m] * TypeName(v[n]);
+						ret[m] += data[n][m] * static_cast<TypeName>(v[n]);
 
 				return ret;
 			}
@@ -133,7 +137,7 @@ namespace SDBX
 			{
 				for (int m{ 0 }; m < M; ++m)
 					for (int n{ 0 }; n < N; ++n)
-						data[m][n] += TypeName(rhs.data[m][n]);
+						data[m][n] += static_cast<TypeName>(rhs.data[m][n]);
 
 				return *this;
 			}
@@ -141,7 +145,7 @@ namespace SDBX
 			Mat& operator -=(const Mat<T, M, N>& rhs){
 				for (int m{ 0 }; m < M; ++m)
 					for (int n{ 0 }; n < N; ++n)
-						data[m][n] -= TypeName(rhs.data[m][n]);
+						data[m][n] -= static_cast<TypeName>(rhs.data[m][n]);
 
 				return *this;
 			}
@@ -150,7 +154,7 @@ namespace SDBX
 			{ 
 				for (int m{ 0 }; m < M; ++m)
 					for (int n{ 0 }; n < N; ++n)
-						data[m][n] *= TypeName(scalar);
+						data[m][n] *= static_cast<TypeName>(scalar);
 
 				return *this;
 			}
@@ -163,7 +167,7 @@ namespace SDBX
 		{
 			explicit Mat22(TypeName x1, TypeName y1, TypeName x2, TypeName y2) 
 				: Mat<TypeName, 2, 2>(x1, y1, x2, y2) {};
-			explicit Mat22(const Vector::Vec<TypeName, 2>& v1, const Vector::Vec<TypeName, 2>& v2) 
+			explicit Mat22(const Vector::Vec2<TypeName>& v1, const Vector::Vec2<TypeName>& v2) 
 				: Mat<TypeName, 2, 2>(v1.x, v1.y, v2.x, v2.y) {};
 		};
 
@@ -172,11 +176,13 @@ namespace SDBX
 		{
 			explicit Mat23(TypeName x1, TypeName y1, TypeName x2, TypeName y2, TypeName x3, TypeName y3) 
 				: Mat<TypeName, 2, 3>(x1, y1, x2, y2, x3, y3) {};
-			explicit Mat23(const Vector::Vec<TypeName, 2>& v1, const Vector::Vec<TypeName, 2>& v2, const Vector::Vec<TypeName, 2>& v3) 
+			explicit Mat23(const Vector::Vec2<TypeName>& v1, const Vector::Vec2<TypeName>& v2, const Vector::Vec2<TypeName>& v3) 
+				: Mat<TypeName, 2, 3>(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y) {};
+			explicit Mat23(const Vector::Vec2<TypeName>& v1, const Vector::Vec2<TypeName>& v2, const Vector::Point2<TypeName>& v3)
 				: Mat<TypeName, 2, 3>(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y) {};
 
 			template<typename T>
-			Vector::Vec<T, 2> operator *(const Vector::Vec<T, 2>& v) const
+			Vector::Vec2<T> operator *(const Vector::Vec2<T>& v) const
 			{
 				TypeName* data{ Mat<TypeName, 2, 3>::data };
 				return Vector::Vec<T, 2>{ data[0][0] * v.x + data[1][0] * v.y
@@ -199,11 +205,11 @@ namespace SDBX
 				Mat23 m{ };
 				for (int o{ 0 }; o < 3; ++o)
 				{
-					m.data[o][0] += data[0][0] * TypeName(rhs.data[o][0])
-								+ data[1][0] * TypeName(rhs.data[o][1]);
+					m.data[o][0] += data[0][0] * static_cast<TypeName>(rhs.data[o][0])
+								+ data[1][0] * static_cast<TypeName>(rhs.data[o][1]);
 
-					m.data[o][1] += data[0][1] * TypeName(rhs.data[o][0])
-						+ data[1][1] * TypeName(rhs.data[o][1]);
+					m.data[o][1] += data[0][1] * static_cast<TypeName>(rhs.data[o][0])
+						+ data[1][1] * static_cast<TypeName>(rhs.data[o][1]);
 				}
 
 				m.data[2][0] += data[0][2];
@@ -216,9 +222,9 @@ namespace SDBX
 			Mat23& operator *=(const Mat23<T>& rhs) const { return (*this) = (*this) * rhs; }
 
 			template<typename T>
-			static inline Mat23 MakeTranslation(const Vector::Point2<T>& position) { return Mat23{ 1.f, 0.f, 0.f, 1.f, TypeName(position.x), TypeName(position.y) }; }
+			static inline Mat23 MakeTranslation(const Vector::Point2<T>& position) { return Mat23{ 1.f, 0.f, 0.f, 1.f, static_cast<TypeName>(position.x), static_cast<TypeName>(position.y) }; }
 			template<typename T>
-			static inline Mat23 MakeTranslation(T x, T y) { return Mat23{ 1.f, 0.f, 0.f, 1.f, TypeName(x), TypeName(y) }; }
+			static inline Mat23 MakeTranslation(T x, T y) { return Mat23{ 1.f, 0.f, 0.f, 1.f, static_cast<TypeName>(x), static_cast<TypeName>(y) }; }
 			
 			template<typename T, typename = Maths::Enable_64_Type<T>>
 			static inline Mat23<double> MakeRotation(T rotation)
@@ -235,9 +241,9 @@ namespace SDBX
 			}
 			
 			template<typename T>
-			static inline Mat23 MakeScale(const Vector::Vec2<T>& scale) { return Mat23{ TypeName(scale.x), 0.f, 0.f, TypeName(scale.y), 0.f, 0.f }; }
+			static inline Mat23 MakeScale(const Vector::Vec2<T>& scale) { return Mat23{ static_cast<TypeName>(scale.x), 0.f, 0.f, static_cast<TypeName>(scale.y), 0.f, 0.f }; }
 			template<typename T>
-			static inline Mat23 MakeScale(T x, T y) { return Mat23{ TypeName(x), 0.f, 0.f, TypeName(y), 0.f, 0.f }; }
+			static inline Mat23 MakeScale(T x, T y) { return Mat23{ static_cast<TypeName>(x), 0.f, 0.f, static_cast<TypeName>(y), 0.f, 0.f }; }
 		};
 
 		template<typename TypeName>
@@ -245,15 +251,15 @@ namespace SDBX
 		{
 			explicit Mat33(TypeName x1, TypeName y1, TypeName z1, TypeName x2, TypeName y2, TypeName z2, TypeName x3, TypeName y3, TypeName z3) 
 				: Mat<TypeName, 3, 3>(x1, y1, z1, x2, y2, z2, x3, y3, z3) {};
-			explicit Mat33(const Vector::Vec<TypeName, 3>& v1, const Vector::Vec<TypeName, 3>& v2, const Vector::Vec<TypeName, 3>& v3)
+			explicit Mat33(const Vector::Vec3<TypeName>& v1, const Vector::Vec3<TypeName>& v2, const Vector::Vec3<TypeName>& v3)
 				: Mat<TypeName, 3, 3>(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z) {};
-			explicit Mat33(const Vector::Vec<TypeName, 2>& v1, const Vector::Vec<TypeName, 2>& v2, const Vector::Vec2<TypeName>& v3)
-				: Mat<TypeName, 3, 3>(v1.x, v1.y, TypeName(0), v2.x, v2.y, TypeName(0), v3.x, v3.y, TypeName(0)) {};
-			explicit Mat33(const Vector::Vec<TypeName, 2>& v1, const Vector::Vec<TypeName, 2>& v2, const Vector::Point2<TypeName>& v3)
-				: Mat<TypeName, 3, 3>(v1.x, v1.y, TypeName(0), v2.x, v2.y, TypeName(0), v3.x, v3.y, TypeName(1)) {};
+			explicit Mat33(const Vector::Vec2<TypeName>& v1, const Vector::Vec2<TypeName>& v2, const Vector::Vec2<TypeName>& v3)
+				: Mat<TypeName, 3, 3>(v1.x, v1.y, static_cast<TypeName>(0), v2.x, v2.y, static_cast<TypeName>(0), v3.x, v3.y, static_cast<TypeName>(0)) {};
+			explicit Mat33(const Vector::Vec2<TypeName>& v1, const Vector::Vec2<TypeName>& v2, const Vector::Point2<TypeName>& v3)
+				: Mat<TypeName, 3, 3>(v1.x, v1.y, static_cast<TypeName>(0), v2.x, v2.y, static_cast<TypeName>(0), v3.x, v3.y, static_cast<TypeName>(1)) {};
 
 			template<typename T>
-			Vector::Vec<T, 2> operator *(const Vector::Vec<T, 2>& v) const
+			Vector::Vec2<T> operator *(const Vector::Vec2<T>& v) const
 			{
 				TypeName* data{ Mat<TypeName, 2, 3>::data };
 				return Vector::Vec<T, 2>{ data[0][0] * v.x + data[1][0] * v.y
@@ -269,9 +275,9 @@ namespace SDBX
 			}
 
 			template<typename T>
-			static inline Mat33 MakeTranslation(const Vector::Point2<T>& position) { return Mat33{ 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, TypeName(position.x), TypeName(position.y), 1.f }; }
+			static inline Mat33 MakeTranslation(const Vector::Point2<T>& position) { return Mat33{ 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, static_cast<TypeName>(position.x), static_cast<TypeName>(position.y), 1.f }; }
 			template<typename T>
-			static inline Mat33 MakeTranslation(T x, T y) { return Mat33{ 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, TypeName(x), TypeName(y), 1.f }; }
+			static inline Mat33 MakeTranslation(T x, T y) { return Mat33{ 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, static_cast<TypeName>(x), static_cast<TypeName>(y), 1.f }; }
 
 			template<typename T, typename = Maths::Enable_64_Type<T>>
 			static inline Mat33<double> MakeRotation(T rotation)
@@ -288,9 +294,9 @@ namespace SDBX
 			}
 
 			template<typename T>
-			static inline Mat33 MakeScale(const Vector::Vec2<T>& scale) { return Mat33{ TypeName(scale.x), 0.f, 0.f, 0.f, TypeName(scale.y), 0.f, 0.f, 0.f, 1.f }; }
+			static inline Mat33 MakeScale(const Vector::Vec2<T>& scale) { return Mat33{ static_cast<TypeName>(scale.x), 0.f, 0.f, 0.f, static_cast<TypeName>(scale.y), 0.f, 0.f, 0.f, 1.f }; }
 			template<typename T>
-			static inline Mat33 MakeScale(T x, T y) { return Mat33{ TypeName(x), 0.f, 0.f, 0.f, TypeName(y), 0.f, 0.f, 0.f, 1.f }; }
+			static inline Mat33 MakeScale(T x, T y) { return Mat33{ static_cast<TypeName>(x), 0.f, 0.f, 0.f, static_cast<TypeName>(y), 0.f, 0.f, 0.f, 1.f }; }
 		};
 
 		template<typename TypeName>
@@ -299,6 +305,8 @@ namespace SDBX
 			explicit Mat34(TypeName x1, TypeName y1, TypeName z1, TypeName x2, TypeName y2, TypeName z2, TypeName x3, TypeName y3, TypeName z3, TypeName x4, TypeName y4, TypeName z4)
 				: Mat<TypeName, 3, 4>(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4) {};
 			explicit Mat34(const Vector::Vec3<TypeName>& v1, const Vector::Vec3<TypeName>& v2, const Vector::Vec3<TypeName>& v3, const Vector::Vec3<TypeName>& v4)
+				: Mat<TypeName, 3, 4>(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z, v4.x, v4.y, v4.z) {};
+			explicit Mat34(const Vector::Vec3<TypeName>& v1, const Vector::Vec3<TypeName>& v2, const Vector::Vec3<TypeName>& v3, const Vector::Point3<TypeName>& v4)
 				: Mat<TypeName, 3, 4>(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z, v4.x, v4.y, v4.z) {};
 
 			template<typename T>
@@ -327,17 +335,17 @@ namespace SDBX
 				Mat34 m{ };
 				for (int o{ 0 }; o < 4; ++o)
 				{
-					m.data[o][0] += data[0][0] * TypeName(rhs.data[o][0])
-								+ data[1][0] * TypeName(rhs.data[o][1])
-								+ data[2][0] * TypeName(rhs.data[o][2]);
+					m.data[o][0] += data[0][0] * static_cast<TypeName>(rhs.data[o][0])
+								+ data[1][0] * static_cast<TypeName>(rhs.data[o][1])
+								+ data[2][0] * static_cast<TypeName>(rhs.data[o][2]);
 
-					m.data[o][1] += data[0][1] * TypeName(rhs.data[o][0])
-								+ data[1][1] * TypeName(rhs.data[o][1])
-								+ data[2][1] * TypeName(rhs.data[o][2]);
+					m.data[o][1] += data[0][1] * static_cast<TypeName>(rhs.data[o][0])
+								+ data[1][1] * static_cast<TypeName>(rhs.data[o][1])
+								+ data[2][1] * static_cast<TypeName>(rhs.data[o][2]);
 
-					m.data[o][2] += data[0][2] * TypeName(rhs.data[o][0])
-								+ data[1][2] * TypeName(rhs.data[o][1])
-								+ data[2][2] * TypeName(rhs.data[o][2]);
+					m.data[o][2] += data[0][2] * static_cast<TypeName>(rhs.data[o][0])
+								+ data[1][2] * static_cast<TypeName>(rhs.data[o][1])
+								+ data[2][2] * static_cast<TypeName>(rhs.data[o][2]);
 				}
 
 				m.data[3][0] += data[0][3];
@@ -351,9 +359,9 @@ namespace SDBX
 			Mat34& operator *=(const Mat34<T>& rhs) const { return (*this) = (*this) * rhs; }
 
 			template<typename T>
-			static inline Mat34 MakeTranslation(const Vector::Point3<T>& position) { return Mat34{ 1, 0, 0, 0, 1, 0, 0, 0, 1, TypeName(position.x), TypeName(position.y), TypeName(position.z) }; }
+			static inline Mat34 MakeTranslation(const Vector::Point3<T>& position) { return Mat34{ 1, 0, 0, 0, 1, 0, 0, 0, 1, static_cast<TypeName>(position.x), static_cast<TypeName>(position.y), static_cast<TypeName>(position.z) }; }
 			template<typename T>
-			static inline Mat34 MakeTranslation(T x, T y, T z) { return Mat34{ 1, 0, 0, 0, 1, 0, 0, 0, 1, TypeName(x), TypeName(y), TypeName(z) }; }
+			static inline Mat34 MakeTranslation(T x, T y, T z) { return Mat34{ 1, 0, 0, 0, 1, 0, 0, 0, 1, static_cast<TypeName>(x), static_cast<TypeName>(y), static_cast<TypeName>(z) }; }
 
 			template<typename T, typename = Maths::Enable_64_Type<T>>
 			static inline Mat34<double> MakeRotation(T yaw, T pitch, T roll)
@@ -391,9 +399,9 @@ namespace SDBX
 			static inline Mat34<float> MakeRotation(const Vector::Vec3<T>& euler) { return MakeRotation(euler.x, euler.y, euler.z); }
 
 			template<typename T>
-			static inline Mat34 MakeScale(const Vector::Vec3<T>& scale) { return Mat34{ TypeName(scale.x), 0, 0, 0, TypeName(scale.y), 0, 0, 0, TypeName(scale.z), 0, 0, 0 }; }
+			static inline Mat34 MakeScale(const Vector::Vec3<T>& scale) { return Mat34{ static_cast<TypeName>(scale.x), 0, 0, 0, static_cast<TypeName>(scale.y), 0, 0, 0, static_cast<TypeName>(scale.z), 0, 0, 0 }; }
 			template<typename T>
-			static inline Mat34 MakeScale(T x, T y, T z) { return Mat34{ TypeName(x), 0, 0, 0, TypeName(y), 0, 0, 0, TypeName(z), 0, 0, 0 }; }
+			static inline Mat34 MakeScale(T x, T y, T z) { return Mat34{ static_cast<TypeName>(x), 0, 0, 0, static_cast<TypeName>(y), 0, 0, 0, static_cast<TypeName>(z), 0, 0, 0 }; }
 		};
 
 		template<typename TypeName>
@@ -404,12 +412,12 @@ namespace SDBX
 						, TypeName x3, TypeName y3, TypeName z3, TypeName w3
 						, TypeName x4, TypeName y4, TypeName z4, TypeName w4) 
 				: Mat<TypeName, 4, 4>(x1, y1, z1, w1, x2, y2, z2, w2, x3, y3, z3, w3, x4, y4, z4, w4) {};
-			explicit Mat44(const Vector::Vec<TypeName, 4>& v1, const Vector::Vec<TypeName, 4>& v2, const Vector::Vec<TypeName, 4>& v3, const Vector::Vec<TypeName, 4>& v4) 
+			explicit Mat44(const Vector::Vec4<TypeName>& v1, const Vector::Vec4<TypeName>& v2, const Vector::Vec4<TypeName>& v3, const Vector::Vec4<TypeName>& v4) 
 				: Mat<TypeName, 4, 4>(v1.x, v1.y, v1.z, v1.w, v2.x, v2.y, v2.z, v2.w, v3.x, v3.y, v3.z, v3.w, v4.x, v4.y, v4.z, v4.w) {};
-			explicit Mat44(const Vector::Vec<TypeName, 3>& v1, const Vector::Vec<TypeName, 3>& v2, const Vector::Vec<TypeName, 3>& v3, const Vector::Vec3<TypeName>& v4)
-				: Mat<TypeName, 4, 4>(v1.x, v1.y, v1.z, TypeName(0), v2.x, v2.y, v2.z, TypeName(0), v3.x, v3.y, v3.z, TypeName(0), v4.x, v4.y, v4.z, TypeName(0)) {};
-			explicit Mat44(const Vector::Vec<TypeName, 3>& v1, const Vector::Vec<TypeName, 3>& v2, const Vector::Vec<TypeName, 3>& v3, const Vector::Point3<TypeName>& v4)
-				: Mat<TypeName, 4, 4>(v1.x, v1.y, v1.z, TypeName(0), v2.x, v2.y, v2.z, TypeName(0), v3.x, v3.y, v3.z, TypeName(0), v4.x, v4.y, v4.z, TypeName(1)) {};
+			explicit Mat44(const Vector::Vec3<TypeName>& v1, const Vector::Vec3<TypeName>& v2, const Vector::Vec3<TypeName>& v3, const Vector::Vec3<TypeName>& v4)
+				: Mat<TypeName, 4, 4>(v1.x, v1.y, v1.z, static_cast<TypeName>(0), v2.x, v2.y, v2.z, static_cast<TypeName>(0), v3.x, v3.y, v3.z, static_cast<TypeName>(0), v4.x, v4.y, v4.z, static_cast<TypeName>(0)) {};
+			explicit Mat44(const Vector::Vec3<TypeName>& v1, const Vector::Vec3<TypeName>& v2, const Vector::Vec3<TypeName>& v3, const Vector::Point3<TypeName>& v4)
+				: Mat<TypeName, 4, 4>(v1.x, v1.y, v1.z, static_cast<TypeName>(0), v2.x, v2.y, v2.z, static_cast<TypeName>(0), v3.x, v3.y, v3.z, static_cast<TypeName>(0), v4.x, v4.y, v4.z, static_cast<TypeName>(1)) {};
 
 			template<typename T>
 			Vector::Vec3<T> operator *(const Vector::Vec3<T>& v) const
@@ -430,9 +438,9 @@ namespace SDBX
 			}
 
 			template<typename T>
-			static inline Mat44 MakeTranslation(const Vector::Point3<T>& position) { return Mat44{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, TypeName(position.x), TypeName(position.y), TypeName(position.z), 1 }; }
+			static inline Mat44 MakeTranslation(const Vector::Point3<T>& position) { return Mat44{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, static_cast<TypeName>(position.x), static_cast<TypeName>(position.y), static_cast<TypeName>(position.z), 1 }; }
 			template<typename T>
-			static inline Mat44 MakeTranslation(T x, T y, T z) { return Mat44{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, TypeName(x), TypeName(y), TypeName(z), 1 }; }
+			static inline Mat44 MakeTranslation(T x, T y, T z) { return Mat44{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, static_cast<TypeName>(x), static_cast<TypeName>(y), static_cast<TypeName>(z), 1 }; }
 
 			template<typename T, typename = Maths::Enable_64_Type<T>>
 			static inline Mat44<double> MakeRotation(T yaw, T pitch, T roll)
@@ -470,9 +478,9 @@ namespace SDBX
 			static inline Mat44<float> MakeRotation(const Vector::Vec3<T>& euler) { return MakeRotation(euler.x, euler.y, euler.z); }
 
 			template<typename T>
-			static inline Mat44 MakeScale(const Vector::Vec3<T>& scale) { return Mat44{ TypeName(scale.x), 0, 0, 0, 0, TypeName(scale.y), 0, 0, 0, 0, TypeName(scale.z), 0, 0, 0, 0, 1 }; }
+			static inline Mat44 MakeScale(const Vector::Vec3<T>& scale) { return Mat44{ static_cast<TypeName>(scale.x), 0, 0, 0, 0, static_cast<TypeName>(scale.y), 0, 0, 0, 0, static_cast<TypeName>(scale.z), 0, 0, 0, 0, 1 }; }
 			template<typename T>
-			static inline Mat44 MakeScale(T x, T y, T z) { return Mat44{ TypeName(x), 0, 0, 0, 0, TypeName(y), 0, 0, 0, 0, TypeName(z), 0, 0, 0, 0, 1 }; }
+			static inline Mat44 MakeScale(T x, T y, T z) { return Mat44{ static_cast<TypeName>(x), 0, 0, 0, 0, static_cast<TypeName>(y), 0, 0, 0, 0, static_cast<TypeName>(z), 0, 0, 0, 0, 1 }; }
 		};
 
 		template<typename T, int M>
