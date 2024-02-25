@@ -11,7 +11,7 @@
 #include "Core\Maths\Vec.h"
 #include "Core\Log\Logger.h"
 #include "Core\Profiling\Profiler.h"
-#include <Renderer/API/DX11/DX11Render.h>
+#include "Renderer/API/DX11/DX11Render.h"
 
 LRESULT _stdcall WndProc_Implementation(HWND, UINT msg, WPARAM wParam, LPARAM);
 

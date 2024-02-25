@@ -6,3 +6,15 @@
 /Build/Win32
 /Source/.vs/Sandbox_Engine/v16
 /Source/Intermediate
+Source/UnitTests/x64/Debug/UnitTests.tlog/CL.command.1.tlog
+Source/UnitTests/x64/Debug/UnitTests.log
+Source/UnitTests/x64/Debug/UnitTests.tlog/UnitTests.lastbuildstate
+Source/UnitTests/x64/Debug/UnitTests.tlog/unsuccessfulbuild
+Source/UnitTests/x64/Debug/vc142.idb
+Source/UnitTests/x64/Debug/vc142.pdb
+Build/Tools/UnitTests/x64/Debug/UnitTests.pdb
+Build/Tools/UnitTests/x64/Debug/UnitTests.exe
+Build/Game/x64/Debug/Sandbox.pdb
+Build/Game/x64/Debug/Sandbox.exe
+Build/Game/x64/Debug/Sandbox.exe
+Build/Game/x64/Debug/Sandbox.pdb

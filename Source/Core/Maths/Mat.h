@@ -11,7 +11,13 @@ namespace SDBX
 		template<typename TypeName, int M, int N>
 		struct Mat
 		{
-			TypeName data[N][M];
+#pragma warning( push )
+#pragma warning( disable : 4201 )
+			union {
+				TypeName data[N][M];
+				struct { Vector::Vec<TypeName, M> V[N]; };
+			};
+#pragma warning( pop )
 
 			explicit Mat() : data{ 0 } {};
 			template<int O, int P>
@@ -93,7 +99,7 @@ namespace SDBX
 				bool equal = true;
 				for (int m{ 0 }; m < M; ++m)
 					for (int n{ 0 }; n < N; ++n)
-						equal &= data[m][n] == static_cast<TypeName>(rhs.data[m][n]);
+						equal &= Maths::Equals<TypeName>(data[m][n], static_cast<TypeName>(rhs.data[m][n]));
 
 				return equal;
 			}
@@ -112,9 +118,9 @@ namespace SDBX
 				return m;
 			}
 			template<typename T>
-			Vector::Vec<T, N> operator *(const Vector::Vec<T, N>& v) const
+			Vector::Vec<T, M> operator *(const Vector::Vec<T, N>& v) const
 			{
-				Vector::Vec<T, N> ret{ };
+				Vector::Vec<T, M> ret{ };
 				for (int m{ 0 }; m < M; ++m)
 					for (int n{ 0 }; n < N; ++n)
 						ret[m] += data[n][m] * static_cast<TypeName>(v[n]);

@@ -24,10 +24,10 @@ namespace SDBX
 
 			inline static Vec<TypeName, N, AsVector> Zero() { return Vec<TypeName, N>{static_cast<TypeName>(0)}; }
 
-			template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-			TypeName operator [](T index) const { return data[index]; }
+			TypeName operator [](size_t index) const { return data[index]; }
+			TypeName& operator [](size_t index) { return data[index]; }
 			template<typename T>
-			bool operator ==(const Vec<T, N, AsVector>& rhs) const { return std::equal(std::begin(data), std::end(data), std::begin(rhs.data)); }
+			bool operator ==(const Vec<T, N, AsVector>& rhs) const { return std::equal(std::begin(data), std::end(data), std::begin(rhs.data), &Maths::Equals<TypeName>); }
 			template<typename T>
 			bool operator !=(const Vec<T, N, AsVector>& rhs) const { return !(*this == rhs); }
 
@@ -140,10 +140,10 @@ namespace SDBX
 			template<typename T, bool AsVec>
 			Vec& operator =(const Vec<T, 4, AsVec>& v) { x = v.x; y = v.y; return *this; }
 
-			template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-			TypeName operator [](T index) const { return data[index]; }
+			TypeName operator [](size_t index) const { return data[index]; }
+			TypeName& operator [](size_t index) { return data[index]; }
 			template<typename T>
-			bool operator ==(const Vec<T, 2, AsVector>& rhs) const { return x == static_cast<TypeName>(rhs.x) && y == static_cast<TypeName>(rhs.y); }
+			bool operator ==(const Vec<T, 2, AsVector>& rhs) const { return Maths::Equals<TypeName>(x, static_cast<TypeName>(rhs.x)) && Maths::Equals<TypeName>(y, static_cast<TypeName>(rhs.y)); }
 			template<typename T>
 			bool operator !=(const Vec<T, 2, AsVector>& rhs) const { return !(*this == rhs); }
 
@@ -166,6 +166,9 @@ namespace SDBX
 			Vec& operator &=(T scalar) { x &= scalar; y &= scalar; return *this; }
 			template<typename T>
 			Vec& operator |= (T scalar) { x |= scalar; y |= scalar; return *this; }
+
+			Vec operator ~() { return Vec(~x, ~y); }
+			Vec operator -() { return Vec(-x, -y); }
 		};
 
 		template<typename TypeName, bool AsVector>
@@ -199,10 +202,10 @@ namespace SDBX
 
 			inline static Vec<TypeName, 3> Zero() { return Vec<TypeName, 3>{static_cast<TypeName>(0)}; }
 
-			template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-			TypeName operator [](T index) const { return data[index]; }
+			TypeName operator [](size_t index) const { return data[index]; }
+			TypeName& operator [](size_t index) { return data[index]; }
 			template<typename T>
-			bool operator ==(const Vec<T, 3, AsVector>& rhs) const { return x == static_cast<TypeName>(rhs.x) && y == static_cast<TypeName>(rhs.y) && z == static_cast<TypeName>(rhs.z); }
+			bool operator ==(const Vec<T, 3, AsVector>& rhs) const { return Maths::Equals<TypeName>(x, static_cast<TypeName>(rhs.x)) && Maths::Equals<TypeName>(y, static_cast<TypeName>(rhs.y)) && Maths::Equals<TypeName>(z, static_cast<TypeName>(rhs.z)); }
 			template<typename T>
 			bool operator !=(const Vec<T, 3, AsVector>& rhs) const { return !(*this == rhs); }
 
@@ -225,6 +228,9 @@ namespace SDBX
 			Vec& operator &=(T scalar) { x &= scalar; y &= scalar; z &= scalar; return *this; }
 			template<typename T>
 			Vec& operator |= (T scalar) { x |= scalar; y |= scalar; z |= scalar; return *this; }
+
+			Vec operator ~() { return Vec(~x, ~y, ~z); }
+			Vec operator -() { return Vec(-x, -y, -z); }
 		};
 
 		template<typename TypeName>
@@ -249,10 +255,10 @@ namespace SDBX
 
 			inline static Vec<TypeName, 4> Zero() { return Vec<TypeName, 4>{static_cast<TypeName>(0)}; }
 
-			template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-			TypeName operator [](T index) const { return data[index]; }
+			TypeName operator [](size_t index) const { return data[index]; }
+			TypeName& operator [](size_t index) { return data[index]; }
 			template<typename T>
-			bool operator ==(const Vec<T, 4>& rhs) const { return x == static_cast<TypeName>(rhs.x) && y == static_cast<TypeName>(rhs.y) && z == static_cast<TypeName>(rhs.z) && w == static_cast<TypeName>(rhs.w); }
+			bool operator ==(const Vec<T, 4>& rhs) const { return Maths::Equals<TypeName>(x, static_cast<TypeName>(rhs.x)) && Maths::Equals<TypeName>(y, static_cast<TypeName>(rhs.y)) && Maths::Equals<TypeName>(z, static_cast<TypeName>(rhs.z)) && Maths::Equals<TypeName>(w, static_cast<TypeName>(rhs.w)); }
 			template<typename T>
 			bool operator !=(const Vec<T, 4>& rhs) const { return !(*this == rhs); }
 
@@ -277,6 +283,7 @@ namespace SDBX
 			Vec& operator |= (T scalar) { x |= scalar; y |= scalar; z |= scalar, w |= scalar; return *this; }
 
 			Vec operator ~() { return Vec(~x, ~y, ~z, ~w); }
+			Vec operator -() { return Vec(-x, -y, -z, -w); }
 		};
 
 		template<typename U, typename T>
